@@ -1,6 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:weather_getter/screens/loading/location.dart';
+import 'package:weather_getter/screens/loading/networking.dart';
+import 'package:weather_getter/screens/location_screen.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
@@ -10,41 +13,39 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
-  late String lat;
-  late String longs;
-
   @override
   void initState() {
     super.initState();
-    getLocation();
+    getLocationData();
   }
 
-  void getLocation() async {
+  void getLocationData() async {
     Location location = Location();
     await location.getCurrentLoc();
-    print(location.latitude);
-    print(location.longitude);
-  }
+    //get weather data after getting user location
+    const apiKey = "34be85e0299cc401d450c2bdb02d28f3";
+    NetworkHelper networkHelper = NetworkHelper(
+        "https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&appid=$apiKey&units=metric");
 
-  void getData() async {
-    var lat = 37.7749; // San Francisco's latitude
-    var lon = -122.4194; // San Francisco's longitude
-    var part = "minutely"; // Exclude the minutely data
-    var apiKey = "34be85e0299cc401d450c2bdb02d28f3";
-    var response = await get(Uri.parse(
-        "https://api.openweathermap.org/data/2.5/lat={$lat}&lon={$lon}&exclude={$part}&appid=$apiKey"));
-
-    // Response response = await get(
-    //     "https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={part}&appid=34be85e0299cc401d450c2bdb02d28f3"
-    //        );
-    print(response.body);
+    var weatherData = await networkHelper.getData();
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) {
+        return LocationScreen(
+          locationWeather: weatherData,
+        );
+      },
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    getData();
-    return Scaffold(
-      body: Center(child: Text("fddf")),
+    return const Scaffold(
+      body: Center(
+          child: SizedBox(
+        height: 50,
+        width: 50,
+        child: SpinKitDoubleBounce(color: Colors.white),
+      )),
     );
   }
 }

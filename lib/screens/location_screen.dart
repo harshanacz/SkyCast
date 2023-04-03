@@ -1,26 +1,37 @@
 import 'package:flutter/material.dart';
 
 class LocationScreen extends StatefulWidget {
-  const LocationScreen({super.key});
+  final locationWeather;
+  const LocationScreen({super.key, this.locationWeather});
 
   @override
   State<LocationScreen> createState() => _LocationScreenState();
 }
 
+// print(
+//     "The temperature in $city is $temperature degrees Celsius and the weather is $description.");
+
 class _LocationScreenState extends State<LocationScreen> {
+  late int temp;
+  late String des;
+  late String cityName;
+
+  @override
+  void initState() {
+    super.initState();
+    updateWithData(widget.locationWeather);
+  }
+
+  void updateWithData(dynamic weatherData) async {
+    temp = weatherData["main"]["temp"].toInt();
+    des = weatherData["weather"][0]["description"];
+    cityName = weatherData["name"];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: const NetworkImage(
-                "https://images.unsplash.com/photo-1542221777328-f6a98e2eb4fe?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80"),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-                Colors.white.withOpacity(0.8), BlendMode.dstATop),
-          ),
-        ),
         constraints: BoxConstraints.expand(),
         child: SafeArea(
           child: Column(
@@ -51,7 +62,8 @@ class _LocationScreenState extends State<LocationScreen> {
                 child: Row(
                   children: <Widget>[
                     Text(
-                      '32°',
+                      '$temp°',
+                      style: TextStyle(fontSize: 60),
                     ),
                     Text(
                       '☀️',
@@ -62,7 +74,8 @@ class _LocationScreenState extends State<LocationScreen> {
               Padding(
                 padding: EdgeInsets.only(right: 15.0),
                 child: Text(
-                  "It's 🍦 time in San Francisco!",
+                  "It's $des in $cityName!",
+                  style: TextStyle(fontSize: 20),
                   textAlign: TextAlign.right,
                 ),
               ),
